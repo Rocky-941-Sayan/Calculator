@@ -1,0 +1,84 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const display = document.getElementById('display');
+    
+    // Function to append values to the display
+    function appendToDisplay(value) {
+        display.innerText += value;
+    }
+    
+    // Function to clear the display
+    function clearDisplay() {
+        display.innerText = '';
+    }
+    
+    // Function to delete the last character from the display
+    function deleteItems() {
+        display.innerText = display.innerText.slice(0, -1);
+    }
+    
+    // Function to calculate the result
+    function calculateResult() {
+        let expression = display.innerText;
+        
+        // Replace x² with **2 for square operation
+        expression = expression.replace(/x²/g, '**2');
+        
+        // Evaluate modulo operation separately
+        const moduloPattern = /(\d+)%(\d+)/g;
+        expression = expression.replace(moduloPattern, (match, p1, p2) => {
+            return parseFloat(p1) % parseFloat(p2);
+        });
+
+        // Check for valid expression and evaluate
+        if (expression.trim() === '') {
+            display.innerText = 'Error';
+        } else {
+            // Use regex to validate that the expression only contains numbers and operators
+            const validExpressionPattern = /^[0-9+\-*/().%x²\s]*$/;
+            if (validExpressionPattern.test(expression)) {
+                // Evaluate the expression safely
+                try {
+                    const result = eval(expression);
+                    // Display result or handle potential evaluation issues
+                    if (typeof result === 'number' && !isNaN(result)) {
+                        display.innerText = result;
+                    } else {
+                        display.innerText = 'error';
+                    }
+                } catch {
+                    display.innerText = 'error';
+                }
+            } else {
+                display.innerText = 'error';
+            }
+        }
+    }
+    
+    // Function to handle square operation
+    function calculateSquare() {
+        const value = display.innerText;
+        if (value) {
+            display.innerText = value + ' x²';
+        }
+    }
+
+    // Add event listeners to buttons
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const value = event.target.innerText;
+            
+            if (value === 'AC') {
+                clearDisplay();
+            } else if (value === 'del') {
+                deleteItems();
+            } else if (value === '=') {
+                calculateResult();
+            } else if (value === 'x²') {
+                calculateSquare();
+            } else {
+                appendToDisplay(value);
+            }
+        });
+    });
+});
